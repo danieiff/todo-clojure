@@ -1,5 +1,6 @@
 (ns todo-clj.core
   (:require [ring.adapter.jetty :as server]
+            [ring.middleware.resource :as resource]
             [compojure.core :refer [routes]]
             [environ.core :refer [env]]
             [todo-clj.handler.main :refer [main-routes]]
@@ -19,7 +20,8 @@
   (-> (routes
        todo-routes
        main-routes)
-      (wrap wrap-dev (:dev env))))
+      (wrap wrap-dev (:dev env))
+      (wrap resource/wrap-resource "public")))
 
 (defn start-server []
   (when-not @server
