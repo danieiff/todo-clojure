@@ -1,19 +1,29 @@
 (ns todo-clj.core
   (:require [ring.adapter.jetty :as server]
             [compojure.core :refer [routes]]
-            [todo-clj.handler.todo :refer [main-routes]]
-            [todo-clj.handler.todo :refer [todo-routes]]))
+            [environ.core :refer [env]]
+            [todo-clj.handler.main :refer [main-routes]]
+            [todo-clj.handler.todo :refer [todo-routes]]
+            [todo-clj.middleware :refer [wrap-dev]]))
 
 (defonce server (atom nil))
 
+(defn- wrap [handler middleware opt]
+  (if (true? opt)
+    (middleware handler)
+    (if opt
+      (middleware handler opt)
+      handler)))
+
 (def app
-  (routes
-   todo-routes
-   main-routes))
+  (-> (routes
+       todo-routes
+       main-routes)
+      (wrap wrap-dev (:dev env))))
 
 (defn start-server []
   (when-not @server
-    (reset! server (server/run-jetty #'handler {:port 3000 :join? false}))))
+    (reset! server (server/run-jetty #'app {:port 3000 :join? false}))))
 
 (defn stop-server []
   (when @server

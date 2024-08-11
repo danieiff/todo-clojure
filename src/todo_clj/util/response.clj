@@ -1,4 +1,4 @@
-ns todo-clj.util.response
+(ns todo-clj.util.response
   (:require [ring.util.response :as res]))
 
 (def response #'res/response)
