@@ -1,6 +1,10 @@
 (ns todo-clj.core
   (:require [ring.adapter.jetty :as server]
             [ring.middleware.resource :as resource]
+            [ring.middleware.keyword-params :as keyword-params]
+            [ring.middleware.params :as params]
+            [ring.middleware.flash :as flash]
+            [ring.middleware.session :as session]
             [compojure.core :refer [routes]]
             [environ.core :refer [env]]
             [todo-clj.handler.main :refer [main-routes]]
@@ -21,7 +25,11 @@
        todo-routes
        main-routes)
       (wrap wrap-dev (:dev env))
-      (wrap resource/wrap-resource "public")))
+      (wrap resource/wrap-resource "public")
+      (wrap keyword-params/wrap-keyword-params true)
+      (wrap params/wrap-params true)
+      (wrap flash/wrap-flash true)
+      (wrap session/wrap-session true)))
 
 (defn start-server []
   (when-not @server
